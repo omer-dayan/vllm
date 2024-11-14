@@ -9,6 +9,14 @@ from pathlib import Path
 
 import boto3
 
+def s3_client():
+    s3 = boto3.client(
+        's3',
+        aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'),
+        aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY'),
+        endpoint_url=os.getenv('RUNAI_STREAMER_S3_ENDPOINT')
+    )
+    return s3
 
 def is_s3(model_or_path: str) -> bool:
     return model_or_path.lower().startswith('s3://')
@@ -32,7 +40,7 @@ def glob(s3=None,
          path: str = "",
          allow_pattern: list[str] | None = None) -> list[str]:
     if s3 is None:
-        s3 = boto3.client("s3")
+        s3 = s3_client()
     bucket_name, _, paths = list_files(s3,
                                        path=path,
                                        allow_pattern=allow_pattern)
@@ -64,7 +72,7 @@ def list_files(
 class S3Model:
 
     def __init__(self) -> None:
-        self.s3 = boto3.client('s3')
+        self.s3 = s3_client()
         for sig in (signal.SIGINT, signal.SIGTERM):
             existing_handler = signal.getsignal(sig)
             signal.signal(sig, self.close_by_signal(existing_handler))
