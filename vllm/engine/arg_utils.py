@@ -1053,7 +1053,7 @@ class EngineArgs:
             SpeculatorsConfig)
 
         if self.speculative_config is None:
-            hf_config = get_config(self.hf_config_path or self.model,
+            hf_config = get_config(self.hf_config_path or target_model_config.model,
                                    self.trust_remote_code, self.revision,
                                    self.code_revision, self.config_format)
 
@@ -1065,7 +1065,7 @@ class EngineArgs:
                 self.speculative_config = {}
                 self.speculative_config[
                     "num_speculative_tokens"] = hf_config.num_lookahead_tokens
-                self.speculative_config["model"] = self.model
+                self.speculative_config["model"] = target_model_config.model
                 self.speculative_config["method"] = hf_config.method
             else:
                 return None
