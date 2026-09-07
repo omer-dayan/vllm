@@ -191,6 +191,9 @@ class Worker(WorkerBase):
 
     def sleep(self, level: int = 1) -> None:
         torch.accelerator.synchronize()
+        from vllm.model_executor.model_loader import get_model_loader
+        model_loader = get_model_loader(self.vllm_config.load_config)
+        model_loader.pause_mx(self.vllm_config, self.model_config)
         free_bytes_before_sleep = torch.accelerator.get_memory_info()[0]
 
         # Save the buffers before level 2 sleep
