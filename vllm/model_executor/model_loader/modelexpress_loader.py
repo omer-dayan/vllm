@@ -94,13 +94,4 @@ class ModelExpressModelLoader(BaseModelLoader):
         model: nn.Module,
         vllm_config: VllmConfig,
     ) -> Generator[tuple[str, torch.Tensor], None, None]:
-        vllm_config.load_format = "auto"
-        ctx = build_vllm_load_context(vllm_config, model_config)
-        model = LoadStrategyChain.run(model, ctx)
-        yield from self.module_to_named_tensors(model)
-
-    def module_to_named_tensors(self, module: nn.Module) -> Generator[tuple[str, torch.Tensor], None, None]:
-        for name, tensor in module.named_parameters():
-            if tensor.is_meta:
-                continue
-            yield name, tensor
+        return self._loader.get_all_weights(model_config, model, vllm_config)
